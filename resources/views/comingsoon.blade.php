@@ -162,8 +162,8 @@
 
     <div class="buttons">
         <a href="https://www.instagram.com/dale3_kerchak?igsh=MTU2bHFqbWs0d243Mg%3D%3D&utm_source=qr" target="_blank">Instagram</a>
-        <a href="http://wa.me/96179158544" target="_blank">TikTok</a>
-        <a href="http://www.tiktok.com/@dale3_kerchak" target="_blank">WhatsApp</a>
+        <a href="http://www.tiktok.com/@dale3_kerchak" target="_blank">TikTok</a>
+        <a href="http://wa.me/96179158544" target="_blank">WhatsApp</a>
     </div>
 </div>
 
