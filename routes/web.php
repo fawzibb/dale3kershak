@@ -163,6 +163,7 @@ Route::post('/cart/remove/{id}', function ($id) {
 Route::patch('/meals/{meal}/toggle', [MealAdminController::class, 'toggleAvailability'])->name('meals.toggle');
 
 Route::resource('categories', CategoryAdminController::class);
+Route::post('/update-rate', [\App\Http\Controllers\Admin\SettingController::class, 'update'])->name('admin.updateRate');
 
 
 
