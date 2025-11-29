@@ -19,9 +19,7 @@ use App\Models\Setting;
 |
 */
 
-Route::get('/', function () {
-    return view('comingsoon');
-});
+
 
 Route::middleware(['auth', 'isAdmin'])->prefix('admin')->group(function () {
 
@@ -37,7 +35,7 @@ Route::middleware(['auth', 'isAdmin'])->prefix('admin')->group(function () {
 
 
 
-Route::get('/menu', function () {
+Route::get('/', function () {
     $categories = Category::with('meals')->get();
 
     return view('menu', [
