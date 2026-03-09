@@ -59,6 +59,7 @@
 
 
 <h1 class="menu-title">Our Menu</h1>
+<h1 class="menu-title">حلال</h1>
 
 <!-- Buttons -->
 <div class="d-flex justify-content-center mb-4 flex-wrap">
