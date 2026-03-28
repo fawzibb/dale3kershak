@@ -11,6 +11,12 @@
         <label>Name:</label>
         <input type="text" name="name" class="form-control" value="{{ $category->name }}" required>
     </div>
+          <!-- Coming Soon -->
+    <div class="mb-3 form-check">
+    <input type="checkbox" name="coming_soon" value="1" class="form-check-input" id="comingSoon"
+           {{ $category->coming_soon ? 'checked' : '' }}>
+    <label class="form-check-label" for="comingSoon">Coming Soon</label>
+</div>
 
     <button class="btn btn-success">Update</button>
 </form>

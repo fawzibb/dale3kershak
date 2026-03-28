@@ -41,12 +41,16 @@
         filter: grayscale(100%) blur(1px);
         pointer-events: none;
     }
-    .out-overlay {
+    .coming-soon-card {
+        opacity: 1;
+        
+    }
+    .out-overlay,
+    .coming-overlay {
         position: absolute;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        background: rgba(150, 0, 0, 0.85);
         color: #fff;
         padding: 8px 18px;
         border-radius: 8px;
@@ -55,42 +59,68 @@
         z-index: 10;
         pointer-events: none;
     }
+    .out-overlay {
+        background: rgba(150, 0, 0, 0.85);
+    }
+    .coming-overlay {
+        background: rgba(180, 120, 20, 0.9);
+    }
+    .coming-soon-badge {
+        display: inline-block;
+        margin-top: 10px;
+        padding: 6px 14px;
+        background: #d4a017;
+        color: #fff;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: bold;
+    }
 </style>
-
 
 <h1 class="menu-title">Our Menu</h1>
 <h1 class="menu-title">حلال</h1>
 
 <!-- Buttons -->
 <div class="d-flex justify-content-center mb-4 flex-wrap">
-@foreach($categories as $category)
+@foreach($categories->sortBy('coming_soon') as $category)
     <button class="btn btn-outline-dark category-btn" data-category="{{ $category->id }}">
         {{ $category->name }}
+        @if($category->coming_soon)
+            - Coming Soon
+        @endif
     </button>
 @endforeach
 </div>
 
-
-
 <hr>
 
 <!-- Sections -->
-@foreach($categories as $category)
+@foreach($categories->sortBy('coming_soon') as $category)
 <div class="meal-section" id="category-{{ $category->id }}">
     
-    <h2 class="text-center" style="font-family:'Playfair Display', serif; color:#704F38;">
-        {{ $category->name }}
-    </h2>
+    <div class="text-center">
+        <h2 style="font-family:'Playfair Display', serif; color:#704F38;">
+            {{ $category->name }}
+        </h2>
+
+        @if($category->coming_soon)
+            <div class="coming-soon-badge">Coming Soon</div>
+        @endif
+    </div>
 
     <div class="row mt-4">
         @foreach($category->meals->sortByDesc('is_available') as $meal)
         <div class="col-md-4 mb-4">
-            <div class="card meal-card shadow position-relative {{ !$meal->is_available ? 'out-stock' : '' }}">
+            <div class="card meal-card shadow position-relative 
+                {{ $category->coming_soon ? 'coming-soon-card' : '' }}
+                {{ !$category->coming_soon && !$meal->is_available ? 'out-stock' : '' }}">
                 
                 <img src="{{ asset('storage/'.$meal->image) }}" class="meal-img" alt="{{ $meal->name }}">
                 
-                @if(!$meal->is_available)
-                <span class="out-overlay">Out of Stock</span>
+                @if($category->coming_soon)
+                    <span class="coming-overlay">Coming Soon</span>
+                @elseif(!$meal->is_available)
+                    <span class="out-overlay">Out of Stock</span>
                 @endif
 
                 <div class="card-body">
@@ -101,7 +131,9 @@
                         L.L {{ number_format($meal->price_ll) }}
                     </p>
 
-                    @if($meal->is_available)
+                    @if($category->coming_soon)
+                        <button class="btn btn-warning w-100" disabled>Coming Soon ⏳</button>
+                    @elseif($meal->is_available)
                         <button class="btn btn-dark w-100 add-to-cart" data-id="{{ $meal->id }}">
                             Add to Cart 🛒
                         </button>
@@ -118,17 +150,16 @@
 </div>
 @endforeach
 
-
-
 <!-- Scripts -->
 @push('scripts')
 <script>
 let buttons = document.querySelectorAll('.category-btn');
 let sections = document.querySelectorAll('.meal-section');
-let dynamicTitle = document.getElementById('dynamicCategory');
 
 // Set first active button
-buttons[0].classList.add("active-btn");
+if (buttons.length > 0) {
+    buttons[0].classList.add("active-btn");
+}
 
 // Button click scroll
 buttons.forEach(btn => {
@@ -155,16 +186,14 @@ window.addEventListener('scroll', () => {
 
         if (rect.top <= 120 && rect.bottom >= 120) {
             let relatedBtn = buttons[index];
-            setActiveButton(relatedBtn);
-
-            dynamicTitle.innerText = relatedBtn.innerText;
+            if (relatedBtn) {
+                setActiveButton(relatedBtn);
+            }
         }
     });
 });
 
-
-
-// Add to Cart Code (unchanged)
+// Add to Cart
 document.querySelectorAll('.add-to-cart').forEach(btn => {
     btn.addEventListener('click', function () {
 
@@ -187,12 +216,14 @@ document.querySelectorAll('.add-to-cart').forEach(btn => {
                 badge.innerText = data.cart_count;
             } else {
                 const cartIcon = document.querySelector('a[href="/cart"]');
-                cartIcon.insertAdjacentHTML("beforeend", `
-                    <span id="cart-badge" 
-                          class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                          ${data.cart_count}
-                    </span>
-                `);
+                if (cartIcon) {
+                    cartIcon.insertAdjacentHTML("beforeend", `
+                        <span id="cart-badge" 
+                              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                              ${data.cart_count}
+                        </span>
+                    `);
+                }
             }
 
             showToast("Item added to cart!");

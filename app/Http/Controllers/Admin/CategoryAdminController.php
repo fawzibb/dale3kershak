@@ -21,45 +21,52 @@ class CategoryAdminController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name' => 'required',
-            'image' => 'image'
+            'name' => 'required|string|max:255',
+            'image' => 'nullable|image',
+            'coming_soon' => 'nullable|boolean',
         ]);
+
+        $data['coming_soon'] = $request->has('coming_soon');
 
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('categories', 'public');
         }
 
         Category::create($data);
-        return redirect('/admin/categories');
+
+        return redirect('/admin/categories')->with('success', 'Category created successfully!');
     }
-     public function destroy(Category $category)
+
+    public function destroy(Category $category)
     {
         $category->delete();
         return redirect('/admin/categories');
     }
 
     public function edit(Category $category)
-{
-    return view('admin.categories.edit', compact('category'));
-}
-
-public function update(Request $request, Category $category)
-{
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'image' => 'nullable|image'
-    ]);
-
-    $category->name = $request->name;
-
-    if ($request->hasFile('image')) {
-        $category->image = $request->file('image')->store('categories', 'public');
+    {
+        return view('admin.categories.edit', compact('category'));
     }
 
-    $category->save();
+    public function update(Request $request, Category $category)
+    {
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'image' => 'nullable|image',
+            'coming_soon' => 'nullable|boolean',
+        ]);
 
-    return redirect('/admin/categories')->with('success', 'Category updated successfully!');
-}
+        $data['coming_soon'] = $request->has('coming_soon');
 
-    
+        $category->name = $data['name'];
+        $category->coming_soon = $data['coming_soon'];
+
+        if ($request->hasFile('image')) {
+            $category->image = $request->file('image')->store('categories', 'public');
+        }
+
+        $category->save();
+
+        return redirect('/admin/categories')->with('success', 'Category updated successfully!');
+    }
 }
